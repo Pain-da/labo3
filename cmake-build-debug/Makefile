@@ -142,6 +142,33 @@ labo3/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\labo3.dir\build.make CMakeFiles/labo3.dir/build
 .PHONY : labo3/fast
 
+fonctions.obj: fonctions.cpp.obj
+
+.PHONY : fonctions.obj
+
+# target to build an object file
+fonctions.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\labo3.dir\build.make CMakeFiles/labo3.dir/fonctions.cpp.obj
+.PHONY : fonctions.cpp.obj
+
+fonctions.i: fonctions.cpp.i
+
+.PHONY : fonctions.i
+
+# target to preprocess a source file
+fonctions.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\labo3.dir\build.make CMakeFiles/labo3.dir/fonctions.cpp.i
+.PHONY : fonctions.cpp.i
+
+fonctions.s: fonctions.cpp.s
+
+.PHONY : fonctions.s
+
+# target to generate assembly for a file
+fonctions.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\labo3.dir\build.make CMakeFiles/labo3.dir/fonctions.cpp.s
+.PHONY : fonctions.cpp.s
+
 main.obj: main.cpp.obj
 
 .PHONY : main.obj
@@ -178,6 +205,9 @@ help:
 	@echo ... edit_cache
 	@echo ... rebuild_cache
 	@echo ... labo3
+	@echo ... fonctions.obj
+	@echo ... fonctions.i
+	@echo ... fonctions.s
 	@echo ... main.obj
 	@echo ... main.i
 	@echo ... main.s

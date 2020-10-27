@@ -80,6 +80,9 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="C:/Users/Stefano/Documents/HEIG/1 semestre/PROG1/labo3/fonctions.cpp">
+			<Option target="labo3"/>
+		</Unit>
 		<Unit filename="C:/Users/Stefano/Documents/HEIG/1 semestre/PROG1/labo3/main.cpp">
 			<Option target="labo3"/>
 		</Unit>
