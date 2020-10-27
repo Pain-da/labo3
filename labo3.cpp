@@ -1,10 +1,10 @@
 /*
 -----------------------------------------------------------------------------------
-Nom du fichier : <labo3>.<cpp> (xxx = h ou cpp)
-Auteur(s) : <Dimitri> <De Bleser>, <Léo> <Meli>, <Stefano> <Pontarolo>
-Date creation : <27.10.2020>
-Description : <à compléter>
-Remarque(s) : <à compléter>
+Nom du fichier : labo3.cpp (xxx = h ou cpp)
+Auteur(s) : Dimitri De Bleser, Léo Meli, Stefano Pontarolo
+Date creation : 27.10.2020
+Description : Convertie un nombre en toutes lettres.
+Remarque(s) :
 Compilateur : Mingw-w64 g++ 8.1.0
 -----------------------------------------------------------------------------------
 */
@@ -13,6 +13,8 @@ Compilateur : Mingw-w64 g++ 8.1.0
 #include <iostream>
 
 using namespace std;
+
+
 
 int main() {
 

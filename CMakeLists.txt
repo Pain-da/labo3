@@ -3,4 +3,4 @@ project(labo3)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(labo3 main.cpp fonctions.cpp)
+add_executable(labo3 labo3.cpp montantEnVaudois.cpp)
