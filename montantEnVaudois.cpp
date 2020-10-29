@@ -1,6 +1,6 @@
 /*
 -----------------------------------------------------------------------------------
-Nom du fichier : montantEnVaudois (xxx = h ou cpp)
+Nom du fichier : montantEnVaudois.cpp
 Auteur(s) : Dimitri De Bleser, Léo Meli, Stefano Pontarolo
 Date creation : 27.10.2020
 Description :
