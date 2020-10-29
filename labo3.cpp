@@ -1,6 +1,6 @@
 /*
 -----------------------------------------------------------------------------------
-Nom du fichier : labo3.cpp (xxx = h ou cpp)
+Nom du fichier : labo3.cpp
 Auteur(s) : Dimitri De Bleser, Léo Meli, Stefano Pontarolo
 Date creation : 27.10.2020
 Description : Convertie un nombre en toutes lettres.
