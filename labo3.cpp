@@ -1,4 +1,4 @@
-/*
+/* test
 -----------------------------------------------------------------------------------
 Nom du fichier : labo3.cpp
 Auteur(s) : Dimitri De Bleser, Léo Meli, Stefano Pontarolo
