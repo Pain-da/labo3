@@ -1,4 +1,5 @@
 /*
+ * test dim
 -----------------------------------------------------------------------------------
 Nom du fichier : montantEnVaudois.cpp
 Auteur(s) : Dimitri De Bleser, Léo Meli, Stefano Pontarolo
