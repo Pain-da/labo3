@@ -8,61 +8,95 @@ Remarque(s) :
 Compilateur : Mingw-w64 g++ 8.1.0
 -----------------------------------------------------------------------------------
 */
-// test 3
+
 #include<iostream>
+#include <cmath>
 
 using namespace std;
 
-string unite[]={"", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf",
-                "dix", "onze", "douze", "treize", "quatorze", "quinze", "seize", "dix-sept", "dix-huit", "dix-neuf"};
-string dizaine[]={"", "", "vingt", "trente", "quarante", "cinquante", "soixante",
-                  "septante", "huitante", "nonante"};
 
-static const string sep= "-";
-const string BILLION="billion";
-const string MILIARD="miliard";
-const string MILLION="million";
-const string MILLE="mille";
-const string CENT="cent";
-string str;
+string nombreEnMots(long long n, const string &s) {
 
-string nombreEnMots(int n,const string& s){
-str = "";
+	const string unite[] = {"", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix", "onze",
+	                        "douze", "treize", "quatorze", "quinze", "seize", "dix-sept", "dix-huit", "dix-neuf"};
+	const string dizaine[] = {"", "", "vingt", "trente", "quarante", "cinquante", "soixante", "septante", "huitante",
+	                          "nonante"};
 
-if(n>99){
-str += (n / 100 > 1 ? unite[n / 100] + sep : "") + CENT + (n / 100 > 1 ? "s" : "");
-}
-if(n>19){
-str += sep + dizaine[(n % 100) / 10] + sep + unite[n % 10];
-}else{
-str += unite[n];
-}
+	const string sep = "-",
+		CENT = "cent";
+	string str;
 
-if(n){
-str += (!s.empty() ? sep : "") + s + ((n > 1 && s != "mille" && !s.empty()) ? "s" : "") +
-       (!s.empty() ? sep : "");
-}
+	if (n > 99) {
+		str += (n / 100 > 1 ? unite[n / 100] + sep : "") + CENT + (s != "mille" && n / 100 > 1 && !(n % 100) ? "s" :
+		                                                           !(n % 100) ? "" : sep);
+	}
+	if (n%100 > 19) {
+		str += (dizaine[(n % 100) / 10].empty() ? "" : dizaine[(n % 100) / 10])+ (unite[n % 10].empty() ? "" : sep) +
+			(unite[n % 10] ==  "un" ? "et" +	sep: "") + unite[n % 10];
+	} else {
+		str += unite[n%100];
+	}
 
-return str;
+	if (n) {
+		str += (s != "franc" && s != "centime" ? sep : " ") + s + ((n > 1 && !s.empty() && s != "mille") ? "s" : "")
+		+((s != "franc" && s != "centime") ? sep : " ");
+	}
+
+	return str;
 }
 
-string montantEnVaudois(long double montant){
+string montantEnVaudois(long double montant) {
 
-	string out;
-	long unsigned entier=(int)((montant/100)*100);
-	unsigned decimale=((int)montant*100)%100;
+	const long double max = 999999999999999.99;
 
-	out+=nombreEnMots((entier/1000000000000),BILLION);
+	if (montant < 0) {
+		return "erreur : montant negatif";
+	} else if (montant > max) {
+		return "erreur : montant trop grand";
+	} else {
 
-	out+=nombreEnMots((entier/1000000000)%1000,MILIARD);
+		string out;
+		// conversion pour enlever la partie décimale
+		montant = round(montant * 100) / 100;
+		long long entier = montant;
+		// conversion pour garder la partie décimale
+		long long decimale = ((long long) (montant * 100)) % 100;
 
-	out+=nombreEnMots((entier/1000000)%1000,MILLION);
 
-	out+=nombreEnMots((entier/1000)%1000,MILLE);
+		if (!entier && !decimale) {
+			out += "zero franc";
+		} else {
 
-	out+=nombreEnMots(entier%1000,"");
+			const string BILLION = "billion",
+				MILLIARD = "milliard",
+				MILLION = "million",
+				MILLE = "mille",
+				CENTIME = "centime",
+				VALUE = "franc";
 
 
-	return out;
 
+
+
+
+			out += nombreEnMots((entier / 1000000000000), BILLION);
+
+			out += nombreEnMots((entier / 1000000000) % 1000, MILLIARD);
+
+			out += nombreEnMots((entier / 1000000) % 1000, MILLION);
+
+			out += nombreEnMots((entier / 1000) % 1000, MILLE);
+
+			out += nombreEnMots(entier % 1000, VALUE);
+
+			if (entier && decimale) {
+				out += "et ";
+			}
+
+			out += nombreEnMots(decimale, CENTIME);
+
+		}
+
+		return out;
+	}
 }
