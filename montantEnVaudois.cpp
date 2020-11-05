@@ -1,69 +1,153 @@
 /*
- * test dim
 -----------------------------------------------------------------------------------
-Nom du fichier : montantEnVaudois.cpp
+Nom du fichier : labo3.cpp
 Auteur(s) : Dimitri De Bleser, Léo Meli, Stefano Pontarolo
 Date creation : 27.10.2020
-Description :
+Description : Convertie un nombre en toutes lettres.
 Remarque(s) :
 Compilateur : Mingw-w64 g++ 8.1.0
 -----------------------------------------------------------------------------------
 */
 
-#include<iostream>
+#include <string>
+#include <iostream>
+#include <cmath>
 
 using namespace std;
 
-string unite[]={"", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf",
-                "dix", "onze", "douze", "treize", "quatorze", "quinze", "seize", "dix-sept", "dix-huit", "dix-neuf"};
-string dizaine[]={"", "", "vingt", "trente", "quarante", "cinquante", "soixante",
-                  "septante", "huitante", "nonante"};
+string montantEnVaudois(long double montant);
+string obtientDecimal(unsigned chiffre, unsigned long long montantActuel, const string& SEPARATEUR);
+string obtientDizaine(unsigned chiffre);
+string obtientCasParticulier(unsigned chiffre);
+string obtientGrandeure(int puissanceDix, unsigned chiffre, unsigned long long montant, const string& SEPARATEUR);
 
-static const string sep= "-";
-const string BILLION="billion";
-const string MILIARD="miliard";
-const string MILLION="million";
-const string MILLE="mille";
-const string CENT="cent";
-string str;
 
-string nombreEnMots(int n,const string& s){
-str = "";
+string montantEnVaudois(long double montant) {
+    const unsigned CENTIMES = 100;
+    const string SEPARATEUR = "-";
+    const string ESPACE = " ";
 
-if(n>99){
-str += (n / 100 > 1 ? unite[n / 100] + sep : "") + CENT + (n / 100 > 1 ? "s" : "");
+    auto montantEnCentimes = (unsigned long long) round(montant * CENTIMES);
+    int puissanceDix = -2;
+    string montantEnVaudois;
+
+    do {
+        unsigned chiffreActuel = montantEnCentimes % 10;
+        montantEnVaudois.insert(0, obtientGrandeure(puissanceDix, chiffreActuel, montantEnCentimes, SEPARATEUR));
+
+        bool pasUnCent = puissanceDix == 0 || (puissanceDix + 1 ) % 3 != 0;
+        bool pasUnMille = puissanceDix != 3 || montantEnCentimes % 100 > 9;
+        bool afficheQuelquechose;
+
+        if ((afficheQuelquechose = ((abs(puissanceDix) - 1) % 3 == 0))) {
+            montantEnVaudois.insert(0, obtientDizaine(chiffreActuel));
+        } else if ((afficheQuelquechose = (chiffreActuel > 1 || (chiffreActuel > 0 && pasUnCent && pasUnMille)))) {
+
+            bool pasUnCasParticulier = montantEnCentimes % 100 <= 10 || montantEnCentimes % 100 >= 17 || puissanceDix % 3 != 0;
+
+            if (pasUnCasParticulier) {
+                montantEnVaudois.insert(0, obtientDecimal(chiffreActuel, montantEnCentimes, SEPARATEUR));
+            } else {
+                montantEnVaudois.insert(0, obtientCasParticulier(montantEnCentimes % 100));
+                montantEnCentimes /= 10;
+                ++puissanceDix;
+            }
+        }
+
+        montantEnCentimes /= 10;
+        ++puissanceDix;
+
+        if(afficheQuelquechose && chiffreActuel > 0 && montantEnCentimes >= 1 && puissanceDix != 0){
+            montantEnVaudois.insert(0, SEPARATEUR);
+        }
+
+        if (puissanceDix == 0 && montantEnCentimes > 0) {
+
+            string franc = ESPACE + "franc";
+            if(montant >= 1000000){
+                franc.insert(0, ESPACE + "de");
+            }
+            if(montant > 1){
+                franc.insert(franc.length(), "s");
+            }
+            if((long long unsigned) round(montant * 100) % 100 > 0){
+                franc.insert(franc.length(), ESPACE + "et" + ESPACE);
+            }
+            montantEnVaudois.insert(0, franc);
+        }
+    } while (montantEnCentimes >= 1);
+
+    return montantEnVaudois;
 }
-if(n>19){
-str += sep + dizaine[(n % 100) / 10] + sep + unite[n % 10];
-}else{
-str += unite[n];
+
+string obtientDecimal(unsigned chiffre, unsigned long long montantActuel, const string& SEPARATEUR) {
+    string et;
+    if(chiffre == 1 && montantActuel % 100 >= 20){
+        et = "et" + SEPARATEUR;
+    }
+
+    string conversion[] = {"", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix"};
+    return et + conversion[chiffre];
 }
 
-if(n){
-str += (!s.empty() ? sep : "") + s + ((n > 1 && s != "mille" && !s.empty()) ? "s" : "") +
-       (!s.empty() ? sep : "");
+string obtientDizaine(unsigned chiffre) {
+    string conversion[] = {"", "dix", "vingt", "trante", "quarante", "cinquante", "soixante", "septante",
+                           "huitante","nonante"};
+    return conversion[chiffre];
 }
 
-return str;
+string obtientCasParticulier(unsigned chiffre) {
+    string casParticulierDisaine[] = {"onze", "douze", "treize", "quatorze", "quinze", "seize"};
+    return casParticulierDisaine[chiffre - 11];
 }
 
-string montantEnVaudois(long double montant){
+string obtientGrandeure(int puissanceDix, unsigned chiffre, unsigned long long montantActuel, const string& SEPARATEUR) {
 
-	string out;
-	long unsigned entier=(int)((montant/100)*100);
-	unsigned decimale=((int)montant*100)%100;
+    enum Grandeures {CENTIMES = -2, CENT = 2, MILLE = 3, MILLION = 6, MILLIARD = 9, BILLION = 12, BILLIARD = 15};
 
-	out+=nombreEnMots((entier/1000000000000),BILLION);
+    string grandeure;
+    if(puissanceDix == Grandeures::CENTIMES && montantActuel % 100 > 0){
+        grandeure = "centime";
+        if(montantActuel % 100 > 1){
+            grandeure += "s";
+        }
+    }
 
-	out+=nombreEnMots((entier/1000000000)%1000,MILIARD);
+    if (puissanceDix > 0 && montantActuel % 1000 > 0) {
 
-	out+=nombreEnMots((entier/1000000)%1000,MILLION);
+        if(puissanceDix > 0 && (puissanceDix + 1) % 3 == 0 && chiffre > 0){
+            grandeure += "cent";
+        }
 
-	out+=nombreEnMots((entier/1000)%1000,MILLE);
+        switch(puissanceDix){
+            case Grandeures::MILLE :
+                grandeure += "mille";
+                break;
+            case Grandeures::MILLION :
+                grandeure += "million";
+                break;
+            case Grandeures::MILLIARD :
+                grandeure += "milliard";
+                break;
+            case Grandeures::BILLION :
+                grandeure += "million";
+                break;
+            case Grandeures::BILLIARD :
+                grandeure += "billiard";
+                break;
+        }
+    }
 
-	out+=nombreEnMots(entier%1000,"");
+    if(grandeure.length() > 0) {
+        if(montantActuel > 1 || (montantActuel > 0 && (puissanceDix + 1) % 3 != 0 && puissanceDix != Grandeures::MILLE)){
+            grandeure.insert(0, SEPARATEUR);
+        }
+        if (puissanceDix >= Grandeures::MILLION && montantActuel % 1000 > 1) {
+            grandeure += "s";
+        }
+    }
 
-
-	return out;
-
+    return grandeure;
 }
+
+
