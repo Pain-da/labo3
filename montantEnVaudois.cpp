@@ -14,7 +14,7 @@ Compilateur : Mingw-w64 g++ 8.1.0
 
 using namespace std;
 
-string nombreEnMots(long long n, long long reste, const string &s) {
+string nombreEnMots(long long n, long long reste, const string &s, string str) {
 
 	const string unite[] = {"", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix", "onze",
 	                        "douze", "treize", "quatorze", "quinze", "seize", "dix-sept", "dix-huit", "dix-neuf"};
@@ -24,7 +24,6 @@ string nombreEnMots(long long n, long long reste, const string &s) {
 	const string sep = "-",
 		CENT = "cent",
 		PLURIEL = "s";
-	string str;
 
 	if (n > 99) {
 		str += (n / 100 > 1 ? unite[n / 100] + sep : "") + CENT + (s != "mille" && n / 100 > 1 && !(n % 100) ? PLURIEL :
@@ -37,26 +36,21 @@ string nombreEnMots(long long n, long long reste, const string &s) {
 		str += (s == "mille" && unite[n % 100] == "un" ? "" : unite[n % 100]);
 	}
 
-
 	if (n || s == "franc") {
-		if (str.empty()) {
-
-		} else{
-			str += (s != "franc" && s != "centime" && (unite[n % 10] != "un" || s != "billion") ? sep : " ");
-		}
-
-		if(n){
-			str += s + ((n > 1 && s != "mille") ? PLURIEL : "") + ((s != "franc" && s != "centime" && reste) ? sep : " ");
-
-			if (!reste) {
-				str += (s == "mille" || s == "franc" || s == "centime" ? "" : "de francs");
-			}
+		if (s == "billion" || s == "milliard" || s == "million") {
+			str += (unite[n % 10] == "un" ? " " : sep) + s + (n > 1 ? PLURIEL : "") + (reste ? sep : " de francs");
+		} else if (s == "mille") {
+			str += (unite[n % 10] == "un" ? "" : sep) + s + (reste ? sep : "");
+		} else if (s == "franc" && !str.empty()) {
+			str += " " + (n == 1 ? s + " " : s + PLURIEL + " ");
+		} else {
+			str += " " + (n == 1 ? s + " " : s + PLURIEL);
 		}
 	}
 
-
 	return str;
 }
+
 
 string montantEnVaudois(long double montant) {
 
@@ -92,21 +86,25 @@ string montantEnVaudois(long double montant) {
 				diviseur_mille = 1000;
 
 
-			out += nombreEnMots((entier / diviseur_billion), entier % diviseur_billion, BILLION);
-
-			out += nombreEnMots((entier / diviseur_milliard) % diviseur_mille, entier % diviseur_milliard, MILLIARD);
-
-			out += nombreEnMots((entier / diviseur_million) % diviseur_mille, entier % diviseur_million, MILLION);
-
-			out += nombreEnMots((entier / diviseur_mille) % diviseur_mille, entier % diviseur_mille, MILLE);
-
-			out += nombreEnMots(entier % diviseur_mille, entier % diviseur_mille, VALUE);
+			out = nombreEnMots((entier / diviseur_billion), entier % diviseur_billion, BILLION, out);
+			if (entier % diviseur_billion) {
+				out = nombreEnMots((entier / diviseur_milliard) % diviseur_mille, entier % diviseur_milliard, MILLIARD,
+				                   out);
+				if (entier % diviseur_milliard) {
+					out = nombreEnMots((entier / diviseur_million) % diviseur_mille, entier % diviseur_million, MILLION,
+					                   out);
+					if (entier % diviseur_million) {
+						out = nombreEnMots((entier / diviseur_mille) % diviseur_mille, entier % diviseur_mille, MILLE, out);
+						out = nombreEnMots(entier % diviseur_mille, entier % diviseur_mille, VALUE, out);
+					}
+				}
+			}
 
 			if (entier && decimale) {
 				out += "et ";
-			}
 
-			out += nombreEnMots(decimale, 1, CENTIME);
+			}
+			out = nombreEnMots(decimale, 1, CENTIME, out);
 
 		}
 
