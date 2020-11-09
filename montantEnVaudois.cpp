@@ -14,6 +14,9 @@ Compilateur : Mingw-w64 g++ 8.1.0
 
 using namespace std;
 
+string montantEnVaudois(long double montant);
+string nombreEnMots(long long n, long long reste, const string &s, string str);
+
 string nombreEnMots(long long n, long long reste, const string &s, string str) {
 
 	const string unite[] = {"", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix", "onze",
