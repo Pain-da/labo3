@@ -28,11 +28,6 @@ unsigned chiffreEnVaudois(unsigned nombre, string& sortie, bool afficheZero = tr
 //ajoute les grandeures en toutes lettres
 unsigned long long grandeureEnVaudois(unsigned grandeur, string& sortie, bool pluriel = false, const string& SEPARATEUR = "-", const string& PLURIEL = "s");
 
-int main(){
-    cout << montantEnVaudois(1000000) << endl;
-
-    return EXIT_SUCCESS;
-}
 string montantEnVaudois(long double montant){
     const string DEVISE = "franc",
         NOM_DECIMAUX = "centime",
