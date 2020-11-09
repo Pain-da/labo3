@@ -14,8 +14,7 @@ Compilateur : Mingw-w64 g++ 8.1.0
 
 using namespace std;
 
-
-string nombreEnMots(long long n, const string &s) {
+string nombreEnMots(long long n, long long reste, const string &s) {
 
 	const string unite[] = {"", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix", "onze",
 	                        "douze", "treize", "quatorze", "quinze", "seize", "dix-sept", "dix-huit", "dix-neuf"};
@@ -23,24 +22,38 @@ string nombreEnMots(long long n, const string &s) {
 	                          "nonante"};
 
 	const string sep = "-",
-		CENT = "cent";
+		CENT = "cent",
+		PLURIEL = "s";
 	string str;
 
 	if (n > 99) {
-		str += (n / 100 > 1 ? unite[n / 100] + sep : "") + CENT + (s != "mille" && n / 100 > 1 && !(n % 100) ? "s" :
+		str += (n / 100 > 1 ? unite[n / 100] + sep : "") + CENT + (s != "mille" && n / 100 > 1 && !(n % 100) ? PLURIEL :
 		                                                           !(n % 100) ? "" : sep);
 	}
-	if (n%100 > 19) {
-		str += (dizaine[(n % 100) / 10].empty() ? "" : dizaine[(n % 100) / 10])+ (unite[n % 10].empty() ? "" : sep) +
-			(unite[n % 10] ==  "un" ? "et" +	sep: "") + unite[n % 10];
+	if (n % 100 > 19) {
+		str += (dizaine[(n % 100) / 10].empty() ? "" : dizaine[(n % 100) / 10]) + (unite[n % 10].empty() ? "" : sep) +
+		       (unite[n % 10] == "un" ? "et" + sep : "") + unite[n % 10];
 	} else {
-		str += unite[n%100];
+		str += (s == "mille" && unite[n % 100] == "un" ? "" : unite[n % 100]);
 	}
 
-	if (n) {
-		str += (s != "franc" && s != "centime" ? sep : " ") + s + ((n > 1 && !s.empty() && s != "mille") ? "s" : "")
-		+((s != "franc" && s != "centime") ? sep : " ");
+
+	if (n || s == "franc") {
+		if (str.empty()) {
+
+		} else{
+			str += (s != "franc" && s != "centime" && (unite[n % 10] != "un" || s != "billion") ? sep : " ");
+		}
+
+		if(n){
+			str += s + ((n > 1 && s != "mille") ? PLURIEL : "") + ((s != "franc" && s != "centime" && reste) ? sep : " ");
+
+			if (!reste) {
+				str += (s == "mille" || s == "franc" || s == "centime" ? "" : "de francs");
+			}
+		}
 	}
+
 
 	return str;
 }
@@ -73,27 +86,27 @@ string montantEnVaudois(long double montant) {
 				MILLE = "mille",
 				CENTIME = "centime",
 				VALUE = "franc";
+			const long long diviseur_billion = 1000000000000,
+				diviseur_milliard = 1000000000,
+				diviseur_million = 1000000,
+				diviseur_mille = 1000;
 
 
+			out += nombreEnMots((entier / diviseur_billion), entier % diviseur_billion, BILLION);
 
+			out += nombreEnMots((entier / diviseur_milliard) % diviseur_mille, entier % diviseur_milliard, MILLIARD);
 
+			out += nombreEnMots((entier / diviseur_million) % diviseur_mille, entier % diviseur_million, MILLION);
 
+			out += nombreEnMots((entier / diviseur_mille) % diviseur_mille, entier % diviseur_mille, MILLE);
 
-			out += nombreEnMots((entier / 1000000000000), BILLION);
-
-			out += nombreEnMots((entier / 1000000000) % 1000, MILLIARD);
-
-			out += nombreEnMots((entier / 1000000) % 1000, MILLION);
-
-			out += nombreEnMots((entier / 1000) % 1000, MILLE);
-
-			out += nombreEnMots(entier % 1000, VALUE);
+			out += nombreEnMots(entier % diviseur_mille, entier % diviseur_mille, VALUE);
 
 			if (entier && decimale) {
 				out += "et ";
 			}
 
-			out += nombreEnMots(decimale, CENTIME);
+			out += nombreEnMots(decimale, 1, CENTIME);
 
 		}
 
