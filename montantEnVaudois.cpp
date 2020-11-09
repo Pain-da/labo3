@@ -20,43 +20,50 @@ string montantEnVaudois(long double montant);
 //converti un nombre en toutes lettres
 string nombreEnVaudois(unsigned long long nombre);
 //ajoute les centaines en toutes lettres
-unsigned centaineEnvaudois(unsigned nombre, vector<string>& sortie, unsigned grandeur = 0);
+unsigned centaineEnvaudois(unsigned nombre, string& sortie, unsigned grandeur = 0, const string& SERPARATEUR = "-", const string& PLURIEL = "s");
 //ajoute les dizaines en toutes lettres
-unsigned dizaineEnVaudois(unsigned nombre, vector<string>& sortie);
+unsigned dizaineEnVaudois(unsigned nombre, string& sortie, const string& SEPARATEUR = "-", const string& ET = "et");
 //ajoute les chiffres en toutes lettres
-unsigned chiffreEnVaudois(unsigned nombre, vector<string>& sortie, bool afficheZero = true);
+unsigned chiffreEnVaudois(unsigned nombre, string& sortie, bool afficheZero = true, const string& SEPARATEUR = "-");
 //ajoute les grandeures en toutes lettres
-unsigned long long grandeureEnVaudois(unsigned grandeur, vector<string>& sortie, bool pluriel = false);
+unsigned long long grandeureEnVaudois(unsigned grandeur, string& sortie, bool pluriel = false, const string& SEPARATEUR = "-", const string& PLURIEL = "s");
 
+int main(){
+    cout << montantEnVaudois(1000000) << endl;
+
+    return EXIT_SUCCESS;
+}
 string montantEnVaudois(long double montant){
-    const string DEVISE = "franc";
-    const string NOM_DECIMAUX = "centime";
-    const string ET_EN_VAUDOIS = "et";
-    const string DE_EN_VAUDOIS = "de";
-    const string PLURIEL = "s";
-    const string SEPARATEUR = "-";
-    const string ESPACE = " ";
-    const unsigned PRECISION = 2; //nombres de chiffres apres la virgule
+    const string DEVISE = "franc",
+        NOM_DECIMAUX = "centime",
+        ET_EN_VAUDOIS = "et",
+        DE_EN_VAUDOIS = "de",
+        PLURIEL = "s",
+        SEPARATEUR = "-",
+        ESPACE = " ";
+    //nombres de chiffres apres la virgule
+    const unsigned PRECISION = 2,
+        CENTIME_EGALE_FRANC = (unsigned) pow(10, PRECISION);
+    const long double MONTANT_MAX = 999999999999999.99;
     string montantEnVaudois;
-    vector<string> sortie;
 
-    if(montant > 999999999999999.99){
+    if(montant > MONTANT_MAX){
         montantEnVaudois = "erreur : montant trop grand";
     }else if(montant < 0){
         montantEnVaudois = "erreur : montant negatif";
     }else {
-        auto centimes = (unsigned) round((montant - trunc(montant)) * pow(10, PRECISION));//todo verification d'arondi
-        if (centimes >= 100) {
+        auto centimes = (unsigned) round((montant - trunc(montant)) * pow(10, PRECISION));
+        if (centimes >= CENTIME_EGALE_FRANC) {
             centimes = 0;
             ++montant;
         }
         //nombre de francs
-        montantEnVaudois = nombreEnVaudois((unsigned long long) montant); //todo verification d'arondi
+        montantEnVaudois = nombreEnVaudois((unsigned long long) montant);
         //ajout franc
         if (montant >= 1 || centimes == 0) {
             //ajout zero si zero francs, zero centimes
             if (montant < 1) {
-                chiffreEnVaudois(0, sortie), montantEnVaudois += sortie.back();
+                chiffreEnVaudois(0, montantEnVaudois);
             }
             montantEnVaudois += ESPACE;
             if ((unsigned long long) montant % 100000 == 0 && montant >= 1000000) {
@@ -82,36 +89,28 @@ string montantEnVaudois(long double montant){
 }
 
 string nombreEnVaudois(unsigned long long nombre){
-    const string SEPARATEUR = "-";
     string nombreEnVaudois;
-    vector<string> sortie;
     unsigned grandeur = 0;
     while (nombre >= 1) {
         unsigned centaine = nombre % 1000;
         //ajout de la grandeure
         if (centaine > 0) {
-            grandeureEnVaudois(grandeur, sortie, centaine > 1);
+            grandeureEnVaudois(grandeur, nombreEnVaudois, centaine > 1);
         }
         //decomposition du nombre en centaines
         if (centaine > 1 || grandeur != 1){
-            centaineEnvaudois(centaine, sortie, grandeur);
+            centaineEnvaudois(nombre, nombreEnVaudois, grandeur);
         }
         nombre /= 1000;
         ++grandeur;
     }
-    //ajout des sorties dans le string
-    for(auto i = sortie.begin(); i != sortie.end(); ++i) {
-        nombreEnVaudois += *i;
-        if(i != sortie.end() - 1){
-            nombreEnVaudois += SEPARATEUR;
-        }
-    }
+    //supression du premier SEPARATEUR en trop
+    nombreEnVaudois = nombreEnVaudois.substr(0, nombreEnVaudois.size()-1);
     return nombreEnVaudois;
 }
 
-unsigned centaineEnvaudois(unsigned nombre, vector<string>& sortie,  unsigned grandeur){
+unsigned centaineEnvaudois(unsigned nombre, string& sortie,  unsigned grandeur, const string& SEPARATEUR, const string& PLURIEL){
     string cent = "cent";
-    const string CENT_PLURIEL = "s";
     const unsigned  CENTAINE = nombre % 1000;
     const unsigned VALEUR_CENTAINE = CENTAINE / 100;
     //ajout des dizaines avant les centaines
@@ -119,22 +118,20 @@ unsigned centaineEnvaudois(unsigned nombre, vector<string>& sortie,  unsigned gr
     //ajout de cent(s)
     if (VALEUR_CENTAINE > 0) {
         if(VALEUR_CENTAINE > 1 && DIZAINE == 0 && grandeur != 1){
-            cent += CENT_PLURIEL;
+            cent += PLURIEL;
         }
-        sortie.insert(sortie.begin(), cent);
+        sortie.insert(0, cent + SEPARATEUR);
     }
     //ajout du nombre de centaine si plus grand que 1 pour ne pas avoir "un-cent"
     if(VALEUR_CENTAINE > 1) {
         chiffreEnVaudois(VALEUR_CENTAINE, sortie);
     }
-    return VALEUR_CENTAINE;
+    return CENTAINE;
 }
 
-unsigned dizaineEnVaudois(unsigned nombre, vector<string>& sortie){
-    //decomposition du nombre en dizaine
+unsigned dizaineEnVaudois(unsigned nombre, string& sortie, const string& SEPARATEUR, const string& ET){
     const unsigned DIZAINE = nombre % 100;
     const unsigned VALEURE_DIZAINE = DIZAINE / 10;
-    const string DIZAINE_ET = "et";
     const string DIZAINE_EN_VAUDOIS[] = {"dix", "vingt", "trente", "quarante", "cinquante", "soixante", "septante",
                                          "huitante", "nonante"};
 
@@ -144,41 +141,39 @@ unsigned dizaineEnVaudois(unsigned nombre, vector<string>& sortie){
 
     if(DIZAINE >= casParticulierMin && DIZAINE <= casParticulierMax){
         //verifie si une valeur a ete ajoutee
-        sortie.insert(sortie.begin(), casParticulier[DIZAINE - casParticulierMin]);
+        sortie.insert(0, casParticulier[DIZAINE - casParticulierMin] + SEPARATEUR);
     }//sinon decomposition du nombre
     else{
         //ajout du "et" pour les nombre tel que 21, ajout du chiffre avant les dizaine
         if(chiffreEnVaudois(nombre,sortie, false) == 1 && VALEURE_DIZAINE > 1){
-            sortie.insert(sortie.begin(), DIZAINE_ET);
+            sortie.insert(0, ET + SEPARATEUR);
         }
         if(VALEURE_DIZAINE > 0) {
-            sortie.insert(sortie.begin(), DIZAINE_EN_VAUDOIS[VALEURE_DIZAINE - 1]);
+            sortie.insert(0, DIZAINE_EN_VAUDOIS[VALEURE_DIZAINE - 1] + SEPARATEUR);
         }
     }
     return DIZAINE;
 }
 
-unsigned chiffreEnVaudois(unsigned nombre, vector<string>& sortie, bool afficheZero) {
+unsigned chiffreEnVaudois(unsigned nombre, string& sortie, bool afficheZero, const string& SEPARATEUR) {
     const string CHIFFRES_EN_VAUDOIS[] = {"zero", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit",
                                           "neuf"};
-    //decomposition du nombre en chiffre
     const unsigned CHIFFRE = nombre % 10;
     if (afficheZero || CHIFFRE != 0){
-        sortie.insert(sortie.begin(), CHIFFRES_EN_VAUDOIS[CHIFFRE]);
+        sortie.insert(0, CHIFFRES_EN_VAUDOIS[CHIFFRE] + SEPARATEUR);
     }
     return CHIFFRE;
 }
 
-unsigned long long grandeureEnVaudois(unsigned grandeur, vector<string>& sortie, bool pluriel){
-    const string GRANDEURE_EN_VAUDOIS[] = {"mille", "million", "milliard", "billion", "billiard"};
-    const string PLURIEL_GRANDEUR = "s";
-    if(grandeur > 0 && grandeur <= 5) {
+unsigned long long grandeureEnVaudois(unsigned grandeur, string& sortie, bool pluriel, const string& SEPARATEUR, const string& PLURIEL){
+    const string GRANDEURE_EN_VAUDOIS[] = {"mille", "million", "milliard", "billion"};
+    if(grandeur > 0 && grandeur <= 4) {
         string grandeurEnVaudois = GRANDEURE_EN_VAUDOIS[grandeur - 1];
         if(pluriel && grandeur > 1){
-            grandeurEnVaudois += PLURIEL_GRANDEUR;
+            grandeurEnVaudois += PLURIEL;
         }
-        sortie.insert(sortie.begin(), grandeurEnVaudois);
-        return (unsigned long long) pow(10,grandeur * 3);
+        grandeurEnVaudois += SEPARATEUR;
+        sortie.insert(0, grandeurEnVaudois);
     }
-    return 0;
+    return (unsigned long long) pow(10,grandeur * 3);
 }
