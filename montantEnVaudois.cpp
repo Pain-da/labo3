@@ -90,7 +90,7 @@ string nombreEnVaudois(unsigned long long nombre){
         const unsigned CHIFFRE = nombre % 10;
         string nombreEnVaudois;
 
-        // [nombre] ajout de cent[s]
+        // ajout de cent
         if(VALEUR_CENTAINE > 0) {
             nombreEnVaudois += VALEUR_CENTAINE > 1 ? CHIFFRES_EN_VAUDOIS[VALEUR_CENTAINE - 1] + SEPARATEUR : "";
             nombreEnVaudois += CENT;
