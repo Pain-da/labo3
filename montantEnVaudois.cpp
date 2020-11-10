@@ -10,10 +10,7 @@ Compilateur : Mingw-w64 g++ 8.1.0
 */
 
 #include <string>
-#include <iostream>
 #include <cmath>
-#include <vector>
-#include <algorithm>
 
 using namespace std;
 
@@ -28,7 +25,8 @@ string montantEnVaudois(long double montant){
             ET_EN_VAUDOIS = "et",
             DE_EN_VAUDOIS = "de",
             PLURIEL = "s",
-            ESPACE = " ";
+            ESPACE = " ",
+            ZERO_FRANC_ZERO_CENTIME = "zero";
     //nombres de chiffres apres la virgule
     const unsigned PRECISION = 2;
     const auto CENTIME_EGALE_FRANC = (unsigned) pow(10, PRECISION);
@@ -48,7 +46,7 @@ string montantEnVaudois(long double montant){
         //nombre de franc
         if (montant >= 1 || centimes == 0) {
             //ajout zero si zero francs, zero centimes, le nombre de francs sinon
-            montantEnVaudois = montant < 1 ? "zero" : nombreEnVaudois((unsigned long long) montant);
+            montantEnVaudois = montant < 1 ? ZERO_FRANC_ZERO_CENTIME : nombreEnVaudois((unsigned long long) montant);
             montantEnVaudois += ESPACE;
             //ajout du "de" si le nombre de comporte pas de chiffres a la fin
             montantEnVaudois += (unsigned long long) montant % 100000 == 0 && montant >= 1000000 ? DE_EN_VAUDOIS + ESPACE : "";
@@ -112,7 +110,8 @@ string nombreEnVaudois(unsigned long long nombre){
             }
             if(CHIFFRE > 0 && (CENTAINE > 1 || grandeur != 1)) {
                 nombreEnVaudois += CHIFFRES_EN_VAUDOIS[CHIFFRE - 1];
-                nombreEnVaudois += grandeur > 0 ? SEPARATEUR : "";
+                //pas de separateur pour les cas articulier un million/milliard/billion
+                nombreEnVaudois += grandeur > 0 && nombre != 1 ? SEPARATEUR : ESPACE;
             }
         }
         //ajout de la grandeure
@@ -121,20 +120,10 @@ string nombreEnVaudois(unsigned long long nombre){
             nombreEnVaudois += CENTAINE > 1 && grandeur != 1 ? PLURIEL : "";
             nombreEnVaudois += sortie.length() > 0 ? SEPARATEUR : "";
         }
-
         // ajout du nombre actuelle dans le nombre final
         sortie.insert(0, nombreEnVaudois);
         nombre /= 1000;
         ++grandeur;
-    }
-    //supression du separateur pour les cas particuliers un million/milliard/billion/billion
-    bool casPArticulierTiret = false;
-    for(int i = 0; i <= 3; ++i){
-        casPArticulierTiret = sortie == CHIFFRES_EN_VAUDOIS[0] + SEPARATEUR + GRANDEURE_EN_VAUDOIS[i];
-        if (casPArticulierTiret){
-            sortie.replace(sortie.find(SEPARATEUR),  SEPARATEUR.length(), ESPACE);
-            break;
-        }
     }
     return sortie;
 }
