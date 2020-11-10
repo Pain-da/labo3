@@ -13,13 +13,14 @@ Compilateur : Mingw-w64 g++ 8.1.0
 #include <iostream>
 #include <cmath>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
+//converti un montant en toutes lettres
 string montantEnVaudois(long double montant);
 //converti un nombre en toutes lettres
 string nombreEnVaudois(unsigned long long nombre);
-unsigned long long grandeureEnVaudois(unsigned grandeur, string& sortie, bool pluriel = false, const string& SEPARATEUR = "-", const string& PLURIEL = "s");
 
 string montantEnVaudois(long double montant){
     const string DEVISE = "franc",
@@ -80,10 +81,10 @@ string nombreEnVaudois(unsigned long long nombre){
             ESPACE = " ",
             CENT = "cent";
 
-    //decomposition du nombre en centaines
     string sortie;
     unsigned grandeur = 0;
     while (nombre >= 1) {
+        //decomposition du nombre
         const unsigned CENTAINE = nombre % 1000;
         const unsigned VALEUR_CENTAINE = CENTAINE / 100;
         const unsigned DIZAINE = nombre % 100;
@@ -92,17 +93,18 @@ string nombreEnVaudois(unsigned long long nombre){
         string nombreEnVaudois;
 
         // [nombre] ajout de cent[s]
-        nombreEnVaudois += VALEUR_CENTAINE > 1 ? CHIFFRES_EN_VAUDOIS[VALEUR_CENTAINE] + SEPARATEUR : "";
-        nombreEnVaudois += VALEUR_CENTAINE > 0 ? CENT : "";
-        nombreEnVaudois += VALEUR_CENTAINE > 1 && DIZAINE == 0 && grandeur != 1 ? PLURIEL : "";
-        nombreEnVaudois += VALEUR_CENTAINE > 0 ? SEPARATEUR : "";
-
+        if(VALEUR_CENTAINE > 0) {
+            nombreEnVaudois += VALEUR_CENTAINE > 1 ? CHIFFRES_EN_VAUDOIS[VALEUR_CENTAINE] + SEPARATEUR : "";
+            nombreEnVaudois += CENT;
+            nombreEnVaudois += VALEUR_CENTAINE > 1 && DIZAINE == 0 && grandeur != 1 ? PLURIEL : "";
+            nombreEnVaudois += SEPARATEUR;
+        }
         // ajout dizaine avec verification de cas particulier
         if(DIZAINE >= casParticulierMin && DIZAINE <= casParticulierMax){
             nombreEnVaudois += casParticulier[DIZAINE - casParticulierMin] + SEPARATEUR;
         }else{
             nombreEnVaudois += VALEURE_DIZAINE > 0 ? DIZAINE_EN_VAUDOIS[VALEURE_DIZAINE - 1] + SEPARATEUR : "";
-            //ajout du "et" pour les nombre tel que 21, ajout du chiffre avant les dizaine
+            //ajout du "et" pour les nombre tel que 21
             nombreEnVaudois += CHIFFRE == 1 && VALEURE_DIZAINE > 1 ? ET_EN_VAUDOIS + SEPARATEUR : "";
             nombreEnVaudois += CHIFFRE > 0 && (CENTAINE > 1 || grandeur != 1) ? CHIFFRES_EN_VAUDOIS[CHIFFRE] + SEPARATEUR : "";
         }
@@ -120,5 +122,15 @@ string nombreEnVaudois(unsigned long long nombre){
     }
     //supression du premier SEPARATEUR en trop
     sortie = sortie.substr(0, sortie.size() - 1);
+
+    //supression du separateur pour les cas particuliers un million/milliard/billion/billion
+    bool casPArticulierTiret = false;
+    for(int i = 0; i <= 3; ++i){
+        casPArticulierTiret = sortie == CHIFFRES_EN_VAUDOIS[1] + SEPARATEUR + GRANDEURE_EN_VAUDOIS[i];
+        if (casPArticulierTiret){
+            sortie.replace(sortie.find(SEPARATEUR),  SEPARATEUR.length(), ESPACE);
+            break;
+        }
+    }
     return sortie;
 }
