@@ -14,9 +14,18 @@ Compilateur : Mingw-w64 g++ 8.1.0
 
 using namespace std;
 
-//converti un montant en toutes lettres
+/**
+ * converti un montant en toutes lettres en vaudois
+ * @param montant
+ * @return
+ */
 string montantEnVaudois(long double montant);
-//converti un nombre en toutes lettres
+
+/**
+ * converti un nombre en toutes lettres en vaudois
+ * @param nombre
+ * @return
+ */
 string nombreEnVaudois(unsigned long long nombre);
 
 string montantEnVaudois(long double montant){
@@ -90,32 +99,32 @@ string nombreEnVaudois(unsigned long long nombre){
         const unsigned CHIFFRE = nombre % 10;
         string nombreEnVaudois;
 
-        // ajout de cent
-        if(VALEUR_CENTAINE > 0) {
+        // ajout de cent[s]
+        if(VALEUR_CENTAINE) {
             nombreEnVaudois += VALEUR_CENTAINE > 1 ? CHIFFRES_EN_VAUDOIS[VALEUR_CENTAINE - 1] + SEPARATEUR : "";
             nombreEnVaudois += CENT;
-            nombreEnVaudois += VALEUR_CENTAINE > 1 && DIZAINE == 0 && grandeur != 1 ? PLURIEL : "";
-            nombreEnVaudois +=  grandeur > 0 || DIZAINE > 0 ? SEPARATEUR : "";
+            nombreEnVaudois += VALEUR_CENTAINE > 1 && !DIZAINE && grandeur != 1 ? PLURIEL : "";
+            nombreEnVaudois +=  grandeur || DIZAINE ? SEPARATEUR : "";
         }
         // ajout dizaine avec verification de cas particulier
         if(DIZAINE >= casParticulierMin && DIZAINE <= casParticulierMax){
             nombreEnVaudois += casParticulier[DIZAINE - casParticulierMin];
             nombreEnVaudois += grandeur > 0 ? SEPARATEUR : "";
         }else{
-            if(VALEURE_DIZAINE > 0) {
+            if(VALEURE_DIZAINE) {
                 nombreEnVaudois += DIZAINE_EN_VAUDOIS[VALEURE_DIZAINE - 1];
-                nombreEnVaudois += sortie.length() > 0 || CHIFFRE > 0 ? SEPARATEUR : "";
+                nombreEnVaudois += sortie.length() > 0 || CHIFFRE ? SEPARATEUR : "";
                 //ajout du "et" pour les nombre tel que 21
                 nombreEnVaudois += CHIFFRE == 1 && VALEURE_DIZAINE > 1 ? ET_EN_VAUDOIS + SEPARATEUR: "";
             }
-            if(CHIFFRE > 0 && (CENTAINE > 1 || grandeur != 1)) {
+            if(CHIFFRE && (CENTAINE > 1 || grandeur != 1)) {
                 nombreEnVaudois += CHIFFRES_EN_VAUDOIS[CHIFFRE - 1];
                 //pas de separateur pour les cas articulier un million/milliard/billion
                 nombreEnVaudois += grandeur > 0 && nombre != 1 ? SEPARATEUR : ESPACE;
             }
         }
         //ajout de la grandeure
-        if(CENTAINE > 0 && grandeur > 0) {
+        if(CENTAINE && grandeur) {
             nombreEnVaudois += GRANDEURE_EN_VAUDOIS[grandeur - 1] ;
             nombreEnVaudois += CENTAINE > 1 && grandeur != 1 ? PLURIEL : "";
             nombreEnVaudois += sortie.length() > 0 ? SEPARATEUR : "";
