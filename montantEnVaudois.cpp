@@ -22,8 +22,7 @@ string nombreEnMots(unsigned long long nombre,unsigned long long reste, const st
 
 // Fonction qui prend deux nombres, une chaîne de caracteres constante et une chaine de caracteres et qui renvoie une
 // chaine de caracteres
-string nombreEnMots(const unsigned long long nombre, const unsigned long long reste, const string &grandeurActuelle,
-						  string str) {
+string nombreEnMots(unsigned long long nombre, unsigned long long reste, const string &grandeurActuelle, string str) {
 
 	const string unite[] = {"", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix", "onze",
 	                        "douze", "treize", "quatorze", "quinze", "seize", "dix-sept", "dix-huit", "dix-neuf"};
