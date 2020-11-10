@@ -72,7 +72,7 @@ string nombreEnVaudois(unsigned long long nombre){
     string casParticulier[] = {"onze", "douze", "treize", "quatorze", "quinze", "seize"};
     enum CasParticulierMinMax {MIN = 11, MAX = 16} casParticulierMin = MIN, casParticulierMax = MAX;
 
-    const string CHIFFRES_EN_VAUDOIS[] = {"zero", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit",
+    const string CHIFFRES_EN_VAUDOIS[] = {"un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit",
                                           "neuf"};
     const string GRANDEURE_EN_VAUDOIS[] = {"mille", "million", "milliard", "billion"};
     const string ET_EN_VAUDOIS = "et",
@@ -94,25 +94,32 @@ string nombreEnVaudois(unsigned long long nombre){
 
         // [nombre] ajout de cent[s]
         if(VALEUR_CENTAINE > 0) {
-            nombreEnVaudois += VALEUR_CENTAINE > 1 ? CHIFFRES_EN_VAUDOIS[VALEUR_CENTAINE] + SEPARATEUR : "";
+            nombreEnVaudois += VALEUR_CENTAINE > 1 ? CHIFFRES_EN_VAUDOIS[VALEUR_CENTAINE - 1] + SEPARATEUR : "";
             nombreEnVaudois += CENT;
             nombreEnVaudois += VALEUR_CENTAINE > 1 && DIZAINE == 0 && grandeur != 1 ? PLURIEL : "";
-            nombreEnVaudois += SEPARATEUR;
+            nombreEnVaudois +=  grandeur > 0 || DIZAINE > 0 ? SEPARATEUR : "";
         }
         // ajout dizaine avec verification de cas particulier
         if(DIZAINE >= casParticulierMin && DIZAINE <= casParticulierMax){
-            nombreEnVaudois += casParticulier[DIZAINE - casParticulierMin] + SEPARATEUR;
+            nombreEnVaudois += casParticulier[DIZAINE - casParticulierMin];
+            nombreEnVaudois += grandeur > 0 ? SEPARATEUR : "";
         }else{
-            nombreEnVaudois += VALEURE_DIZAINE > 0 ? DIZAINE_EN_VAUDOIS[VALEURE_DIZAINE - 1] + SEPARATEUR : "";
-            //ajout du "et" pour les nombre tel que 21
-            nombreEnVaudois += CHIFFRE == 1 && VALEURE_DIZAINE > 1 ? ET_EN_VAUDOIS + SEPARATEUR : "";
-            nombreEnVaudois += CHIFFRE > 0 && (CENTAINE > 1 || grandeur != 1) ? CHIFFRES_EN_VAUDOIS[CHIFFRE] + SEPARATEUR : "";
+            if(VALEURE_DIZAINE > 0) {
+                nombreEnVaudois += DIZAINE_EN_VAUDOIS[VALEURE_DIZAINE - 1];
+                nombreEnVaudois += sortie.length() > 0 || CHIFFRE > 0 ? SEPARATEUR : "";
+                //ajout du "et" pour les nombre tel que 21
+                nombreEnVaudois += CHIFFRE == 1 && VALEURE_DIZAINE > 1 ? ET_EN_VAUDOIS + SEPARATEUR: "";
+            }
+            if(CHIFFRE > 0 && (CENTAINE > 1 || grandeur != 1)) {
+                nombreEnVaudois += CHIFFRES_EN_VAUDOIS[CHIFFRE - 1];
+                nombreEnVaudois += grandeur > 0 ? SEPARATEUR : "";
+            }
         }
         //ajout de la grandeure
         if(CENTAINE > 0 && grandeur > 0) {
             nombreEnVaudois += GRANDEURE_EN_VAUDOIS[grandeur - 1] ;
             nombreEnVaudois += CENTAINE > 1 && grandeur != 1 ? PLURIEL : "";
-            nombreEnVaudois += SEPARATEUR;
+            nombreEnVaudois += sortie.length() > 0 ? SEPARATEUR : "";
         }
 
         // ajout du nombre actuelle dans le nombre final
@@ -120,13 +127,10 @@ string nombreEnVaudois(unsigned long long nombre){
         nombre /= 1000;
         ++grandeur;
     }
-    //supression du premier SEPARATEUR en trop
-    sortie = sortie.substr(0, sortie.size() - 1);
-
     //supression du separateur pour les cas particuliers un million/milliard/billion/billion
     bool casPArticulierTiret = false;
     for(int i = 0; i <= 3; ++i){
-        casPArticulierTiret = sortie == CHIFFRES_EN_VAUDOIS[1] + SEPARATEUR + GRANDEURE_EN_VAUDOIS[i];
+        casPArticulierTiret = sortie == CHIFFRES_EN_VAUDOIS[0] + SEPARATEUR + GRANDEURE_EN_VAUDOIS[i];
         if (casPArticulierTiret){
             sortie.replace(sortie.find(SEPARATEUR),  SEPARATEUR.length(), ESPACE);
             break;
