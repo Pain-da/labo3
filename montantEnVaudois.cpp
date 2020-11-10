@@ -14,14 +14,16 @@ Compilateur : Mingw-w64 g++ 8.1.0
 
 using namespace std;
 
-// prototypes des deux fonctions
+// Prototypes des deux fonctions
 string montantEnVaudois(long double montant);
 
-string nombreEnMots(unsigned long long nombre, unsigned long long reste, const string &grandeurActuelle, string str);
+string nombreEnMots(unsigned long long nombre,unsigned long long reste, const string &grandeurActuelle,
+						  string str);
 
-// fonction qui prend deux nombres, une chaîne de caracteres constante et une chaine de caracteres et qui renvoie une
+// Fonction qui prend deux nombres, une chaîne de caracteres constante et une chaine de caracteres et qui renvoie une
 // chaine de caracteres
-string nombreEnMots(unsigned long long nombre, unsigned long long reste, const string &grandeurActuelle, string str) {
+string nombreEnMots(const unsigned long long nombre, const unsigned long long reste, const string &grandeurActuelle,
+						  string str) {
 
 	const string unite[] = {"", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix", "onze",
 	                        "douze", "treize", "quatorze", "quinze", "seize", "dix-sept", "dix-huit", "dix-neuf"};
@@ -41,14 +43,14 @@ string nombreEnMots(unsigned long long nombre, unsigned long long reste, const s
 		ESPACE = " ",
 		DEVISE = "franc";
 
-	// si le nombre est superieur a 99, il doit verifier s'il est supérieur a 199 afin de saisir correctement la valeur
+	// Si le nombre est superieur a 99, il doit verifier s'il est supérieur a 199 afin de saisir correctement la valeur
 	// des centaines
 	if (nombre > 99) {
 		str += (nombre > 199 ? unite[nombre / 100] + sep : "") + CENT;
 		str += (grandeurActuelle != grandeur[mille] && nombre > 199 && !(nombre % 100) ? PLURIEL : !(nombre % 100) ? ""
 		                                                                                                           : sep);
 	}
-	// si le reste de la division avec 100 est superieur a 19, le nombre doit etre divise en dizaines et en unites.
+	// Si le reste de la division avec 100 est superieur a 19, le nombre doit etre divise en dizaines et en unites.
 	if (nombre % 100 > 19) {
 		str += (dizaine[(nombre % 100) / 10].empty() ? "" : dizaine[(nombre % 100) / 10]) +
 		       (unite[nombre % 10].empty() ? "" : sep) +
